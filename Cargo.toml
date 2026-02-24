@@ -1,0 +1,23 @@
+[package]
+name = "pdf-protect-unlock"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+lopdf = { version = "0.34", default-features = false, features = ["nom_parser"] }
+md-5 = "0.10"
+web-sys = { version = "0.3", features = ["console"] }
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+
+[[bin]]
+name = "pdfcrypt"
+path = "src/bin/pdfcrypt.rs"
+
+[profile.release]
+opt-level = "s"
+lto = true

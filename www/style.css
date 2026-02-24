@@ -1,0 +1,301 @@
+/* ========================== Reset & Base ========================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:        #ffffff;
+    --surface:   #f9fafb;
+    --border:    #e2e5eb;
+    --border-hl: #cbd0d8;
+    --text:      #1e293b;
+    --muted:     #64748b;
+    --primary:   #6366f1;
+    --primary-h: #4f46e5;
+    --success:   #16a34a;
+    --error:     #dc2626;
+    --radius:    12px;
+    --max-w:     560px;
+}
+
+html { font-size: 16px; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ========================== App Shell ========================== */
+.app {
+    width: 100%;
+    max-width: var(--max-w);
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* ========================== Header ========================== */
+header { text-align: center; }
+header .logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary), #a855f7);
+    color: #fff;
+    margin-bottom: .75rem;
+}
+header h1 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+header .subtitle {
+    color: var(--muted);
+    font-size: .95rem;
+    margin-top: .35rem;
+}
+
+/* ========================== Tabs ========================== */
+.tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    padding: 4px;
+    gap: 4px;
+}
+.tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .65rem 1rem;
+    border: none;
+    border-radius: calc(var(--radius) - 2px);
+    background: transparent;
+    color: var(--muted);
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(99,102,241,.25);
+}
+
+/* ========================== Panels ========================== */
+.panel { display: none; flex-direction: column; gap: 1.25rem; }
+.panel.active { display: flex; }
+.panel-desc { color: var(--muted); font-size: .9rem; line-height: 1.5; }
+
+/* ========================== Dropzone ========================== */
+.dropzone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem .6rem;
+    padding: .9rem 1.2rem;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    text-align: center;
+    transition: border-color .2s, background .2s;
+    cursor: pointer;
+}
+.dropzone svg { color: var(--muted); width: 22px; height: 22px; flex-shrink: 0; }
+.dropzone p { color: var(--muted); font-size: .85rem; }
+.dropzone span { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+.dropzone.drag-over {
+    border-color: var(--primary);
+    background: rgba(99,102,241,.08);
+}
+.dropzone.has-file {
+    border-color: var(--success);
+    border-style: solid;
+}
+.file-btn {
+    display: inline-block;
+    padding: .4rem 1rem;
+    border-radius: 6px;
+    background: rgba(99,102,241,.1);
+    color: var(--primary);
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+}
+.file-btn:hover { background: rgba(99,102,241,.18); }
+.file-name {
+    font-size: .85rem;
+    color: var(--success);
+    font-weight: 500;
+    min-height: 1.25rem;
+    word-break: break-all;
+}
+
+/* ========================== Fields ========================== */
+.field-group { display: flex; flex-direction: column; gap: .4rem; }
+.field-group label {
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted);
+}
+.field-hint {
+    font-size: .78rem;
+    color: var(--muted);
+    opacity: .7;
+    line-height: 1.3;
+}
+.optional-tag {
+    display: inline-block;
+    font-size: .65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding: .1rem .4rem;
+    border-radius: 4px;
+    background: rgba(99,102,241,.1);
+    color: var(--primary);
+    vertical-align: middle;
+    margin-left: .3rem;
+}
+.password-wrap {
+    position: relative;
+    display: flex;
+}
+.password-wrap input {
+    flex: 1;
+    padding: .7rem .85rem;
+    padding-right: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    color: var(--text);
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .15s;
+}
+.password-wrap input::placeholder { color: var(--muted); opacity: .6; }
+.password-wrap input:focus { border-color: var(--primary); }
+.eye-btn {
+    position: absolute;
+    right: 8px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    transition: color .15s;
+}
+.eye-btn:hover { color: var(--text); }
+
+/* ========================== Action Button ========================== */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, opacity .15s, transform .1s;
+}
+.action-btn:hover:not(:disabled) { background: var(--primary-h); }
+.action-btn:active:not(:disabled) { transform: scale(.98); }
+.action-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Spinner */
+.spinner {
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========================== Result ========================== */
+.result {
+    min-height: 0;
+    transition: min-height .3s;
+}
+.result:empty { display: none; }
+.result .msg {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .85rem 1rem;
+    border-radius: 8px;
+    font-size: .9rem;
+    line-height: 1.4;
+}
+.result .msg.success {
+    background: rgba(22,163,74,.06);
+    border: 1px solid rgba(22,163,74,.18);
+    color: var(--success);
+}
+.result .msg.error {
+    background: rgba(220,38,38,.06);
+    border: 1px solid rgba(220,38,38,.18);
+    color: var(--error);
+}
+.download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .6rem;
+    padding: .55rem 1.1rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--success);
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+}
+.download-btn:hover { background: #16a34a; }
+
+/* ========================== Footer ========================== */
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-size: .78rem;
+    text-align: center;
+    line-height: 1.5;
+    opacity: .7;
+}
+footer svg { flex-shrink: 0; }
+
+/* ========================== Responsive ========================== */
+@media (max-width: 480px) {
+    body { padding: 1.25rem .75rem 2rem; }
+    header h1 { font-size: 1.35rem; }
+    .dropzone { padding: .75rem 1rem; }
+}
