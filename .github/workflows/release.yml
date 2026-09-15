@@ -37,8 +37,25 @@ jobs:
         with:
           version: latest
 
+      - name: Install binaryen (wasm-opt)
+        run: |
+          tag=$(curl -fsSL https://api.github.com/repos/WebAssembly/binaryen/releases/latest \
+            | jq -r .tag_name)
+          echo "Using binaryen $tag"
+          curl -fsSL "https://github.com/WebAssembly/binaryen/releases/download/${tag}/binaryen-${tag}-x86_64-linux.tar.gz" \
+            | tar -xz
+          echo "$PWD/binaryen-${tag}/bin" >> "$GITHUB_PATH"
+
       - name: Build WASM package
         run: wasm-pack build --target web --release --out-dir www/pkg
+
+      - name: Optimize wasm
+        run: |
+          wasm-opt --version
+          wasm-opt -Os --enable-reference-types --enable-bulk-memory \
+            www/pkg/pdf_protect_unlock_bg.wasm \
+            -o www/pkg/pdf_protect_unlock_bg.wasm
+          ls -lh www/pkg/pdf_protect_unlock_bg.wasm
 
       - name: Package web bundle
         run: |

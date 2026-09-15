@@ -21,3 +21,9 @@ path = "src/bin/pdfcrypt.rs"
 [profile.release]
 opt-level = "s"
 lto = true
+
+# wasm-pack ships a pinned `wasm-opt` that is too old to parse wasm emitted by
+# Rust 1.82+ (reference-types => multiple tables). We disable it here and run a
+# current binaryen `wasm-opt` ourselves in CI instead.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
