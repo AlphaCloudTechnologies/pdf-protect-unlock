@@ -184,6 +184,96 @@ check "qpdf with empty user pw" \
 check "qpdf with owner pw on empty-user PDF" \
     qpdf --password=secret --decrypt "$TMP/empty_user.pdf" "$TMP/empty_user_dec2.pdf"
 
+# ── Unlocked output must be a valid, unencrypted copy of the original ──
+
+# Valid per `qpdf --check` (exit 0, so warnings fail too), no longer
+# encrypted, and the same text as the source PDF.
+unlocked_ok() {
+    local out="$1" original="$2"
+    qpdf --check "$out" >/dev/null 2>&1 || return 1
+    local rc=0
+    qpdf --requires-password "$out" || rc=$?
+    [ "$rc" -eq 2 ] || return 1
+    [ "$(pdftotext "$out" - 2>/dev/null)" = "$(pdftotext "$original" - 2>/dev/null)" ]
+}
+
+unlock_and_verify() {
+    local name="$1" enc="$2" original="$3" password="$4"
+    local out="${enc%.pdf}_unlocked_$RANDOM.pdf"
+    if $PDFCRYPT unlock "$enc" "$out" --password "$password" >/dev/null 2>&1 && unlocked_ok "$out" "$original"; then
+        pass "$name"
+    else
+        fail "$name" "unlock failed or output differs from the original"
+    fi
+}
+
+# ── Test G: AES and object streams, encrypted by qpdf ────────────
+
+echo ""
+echo "=== Test G: Decrypt AES / object-stream PDFs from qpdf ==="
+# Label, then qpdf arguments: key length, then options.
+QPDF_VARIANTS=(
+    "aes128|128 --use-aes=y"
+    "aes256-r6|256"
+    "aes256-r5|256 --force-R5"
+    "aes256-cleartext-metadata|256 --cleartext-metadata"
+    "aes256-objstm|256 --object-streams=generate"
+    "aes128-objstm|128 --use-aes=y --object-streams=generate"
+    "rc4-128-objstm|128 --use-aes=n --object-streams=generate"
+)
+for name in "${PDFS[@]}"; do
+    src="$TMP/${name}.pdf"
+    for variant in "${QPDF_VARIANTS[@]}"; do
+        label="${variant%%|*}"
+        read -r -a args <<< "${variant#*|}"
+        key="${args[0]}"
+        # --object-streams is a general option and goes before --encrypt; the
+        # rest are encryption options and go inside it.
+        general=() encryption=()
+        for opt in "${args[@]:1}"; do
+            case "$opt" in
+                --object-streams=*) general+=("$opt") ;;
+                *) encryption+=("$opt") ;;
+            esac
+        done
+        enc="$TMP/${name}_${label}.pdf"
+        qpdf --allow-weak-crypto "${general[@]}" \
+            --encrypt userqp ownerqp "$key" "${encryption[@]}" -- "$src" "$enc"
+
+        unlock_and_verify "$label $name (user pw)"  "$enc" "$src" userqp
+        unlock_and_verify "$label $name (owner pw)" "$enc" "$src" ownerqp
+        check_fail "$label $name (wrong pw)" $PDFCRYPT unlock "$enc" "$TMP/${name}_${label}_wrong.pdf" --password nope
+    done
+done
+
+# ── Test H: Encrypted by mutool ──────────────────────────────────
+
+echo ""
+echo "=== Test H: Decrypt mutool-encrypted PDFs ==="
+for name in "${PDFS[@]}"; do
+    src="$TMP/${name}.pdf"
+    for method in rc4-128 aes-128 aes-256; do
+        enc="$TMP/${name}_mutool_${method}.pdf"
+        mutool clean -E "$method" -U usermu -O ownermu "$src" "$enc" 2>/dev/null
+        unlock_and_verify "mutool $method $name (user pw)"  "$enc" "$src" usermu
+        unlock_and_verify "mutool $method $name (owner pw)" "$enc" "$src" ownermu
+    done
+done
+
+# ── Test I: Owner password only (opens freely, restricted) ───────
+
+echo ""
+echo "=== Test I: Remove restrictions from owner-only PDFs, no password ==="
+for name in "${PDFS[@]}"; do
+    src="$TMP/${name}.pdf"
+    for key in "128 --use-aes=y" "256"; do
+        read -r -a args <<< "$key"
+        enc="$TMP/${name}_owneronly_${args[0]}.pdf"
+        qpdf --allow-weak-crypto --encrypt "" ownerqp "${args[0]}" "${args[@]:1}" --print=none --modify=none -- "$src" "$enc"
+        unlock_and_verify "owner-only ${args[0]}-bit $name (no pw)" "$enc" "$src" ""
+    done
+done
+
 # ── Summary ──────────────────────────────────────────────────────
 
 echo ""
